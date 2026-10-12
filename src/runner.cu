@@ -151,14 +151,14 @@ void runCublasTF32(cublasHandle_t handle, int M, int N, int K, float alpha,
 
 void run_sgemm_naive(int M, int N, int K, float alpha, float *A, float *B,
                      float beta, float *C) {
-  dim3 gridDim(CEIL_DIV(M, 32), CEIL_DIV(N, 32));
+  dim3 gridDim(CEIL_DIV(N, 32), CEIL_DIV(M, 32));
   dim3 blockDim(32, 32);
   sgemm_naive<<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
 }
 
 void run_sgemm_coalesce(int M, int N, int K, float alpha, float *A, float *B,
                         float beta, float *C) {
-  dim3 gridDim(CEIL_DIV(M, 32), CEIL_DIV(N, 32));
+  dim3 gridDim(CEIL_DIV(N, 32), CEIL_DIV(M, 32));
   dim3 blockDim(32 * 32);
   sgemm_global_mem_coalesce<32>
       <<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
@@ -166,7 +166,7 @@ void run_sgemm_coalesce(int M, int N, int K, float alpha, float *A, float *B,
 
 void run_sgemm_shared_mem_block(int M, int N, int K, float alpha, float *A,
                                 float *B, float beta, float *C) {
-  dim3 gridDim(CEIL_DIV(M, 32), CEIL_DIV(N, 32));
+  dim3 gridDim(CEIL_DIV(N, 32), CEIL_DIV(M, 32));
   dim3 blockDim(32 * 32);
   // L1 cache becomes useless, since we access GMEM only via SMEM, so we carve
   // out all of L1 to SMEM. This doesn't currently make a difference, since
